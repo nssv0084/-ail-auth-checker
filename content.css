@@ -1,0 +1,65 @@
+#mail-auth-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #f8f8f8;
+  border-bottom: 1px solid #ddd;
+  font-family: sans-serif;
+  font-size: 12px;
+}
+
+.auth-badge {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.auth-pass {
+  background: #d4edda;
+  color: #155724;
+}
+
+.auth-fail {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.auth-none, .auth-neutral {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.auth-warn {
+  background: #fff3cd;
+  color: #856404;
+}
+
+/* インフラ用DKIM（Fromと不一致）は控えめに */
+.auth-infra {
+  opacity: 0.6;
+  font-weight: normal;
+}
+
+/* Fromと一致したDKIMは強調 */
+.auth-aligned {
+  border: 1px solid #28a745;
+}
+
+.auth-note {
+  color: #666;
+  margin-left: 4px;
+}
+
+.auth-link {
+  color: #0066cc;
+  font-size: 12px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}

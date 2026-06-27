@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,
+  "name": "Mail Auth Checker",
+  "version": "0.1.0",
+  "description": "Displays SPF/DKIM/DMARC authentication results as a banner when viewing emails. Shows DKIM alignment and domain registration date to help understand what authentication results actually mean.",
+  "author": "Hiroki Ikemoto",
+  "homepage_url": "https://github.com/nssv0084/-ail-auth-checker",
+  "icons": { "48": "icon48.png", "96": "icon96.png" },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "permissions": [
+    "messagesRead",
+    "scripting",
+    "storage",
+    "https://rdap.verisign.com/*",
+    "https://who.is/*"
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "mail-auth-checker@nssv0",
+      "strict_min_version": "109.0"
+    }
+  }
+}
