@@ -116,7 +116,7 @@ function parseAuthResults(header, from) {
   const dmarcPolicy = extractResult(header, /dmarc=\w+\s*\([^)]*p=(\w+)/i, null);
 
   // DKIM署名のパース（複数署名に対応）
-  const dkimMatches = [...header.matchAll(/dkim=(\w+)(?:[^;(]|\([^)]*\))*?header\.i=@([\w.-]+)/gi)];
+  const dkimMatches = [...header.matchAll(/dkim=(\w+)(?:[^;(]|\([^)]*\))*?header\.i=[^@\s]*@([\w.-]+)/gi)];
   const dkimResults = dkimMatches.map(m => {
     const result = m[1].toLowerCase();
     const domain = m[2].toLowerCase();

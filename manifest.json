@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Mail Auth Checker",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Displays SPF/DKIM/DMARC authentication results as a banner when viewing emails. Shows DKIM alignment and domain registration date to help understand what authentication results actually mean. / メールを開くとSPF/DKIM/DMARCの認証結果をバナーで表示します。DKIMアラインメントとドメイン取得日も表示し、認証結果が何を意味するかを理解する手助けをします。",
   "author": "Hiroki Ikemoto",
   "homepage_url": "https://github.com/nssv0084/-ail-auth-checker",
