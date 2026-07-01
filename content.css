@@ -32,6 +32,11 @@
   color: #383d41;
 }
 
+.auth-softfail {
+  background: #fff3cd;
+  color: #856404;
+}
+
 .auth-warn {
   background: #fff3cd;
   color: #856404;

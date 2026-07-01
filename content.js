@@ -15,7 +15,12 @@ browser.runtime.onMessage.addListener((msg) => {
   const badges = [];
 
   // SPF
-  badges.push(makeBadge("SPF", data.spf));
+  if (data.spfDomain) {
+    const alignType = data.spfAligned ? "aligned" : "infra";
+    badges.push(makeBadge(`SPF (${data.spfDomain})`, data.spf, alignType));
+  } else {
+    badges.push(makeBadge("SPF", data.spf));
+  }
 
   // DKIM: From と一致するものを優先表示
   const alignedDkim = data.dkimResults.find(d => d.aligned);
