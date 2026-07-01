@@ -1,4 +1,4 @@
-messenger.messageDisplay.onMessageDisplayed.addListener(async (tab, message) => {
+if (typeof messenger !== "undefined") messenger.messageDisplay.onMessageDisplayed.addListener(async (tab, message) => {
   try {
     const full = await messenger.messages.getFull(message.id);
     const headers = full.headers;
@@ -138,4 +138,8 @@ function extractDomain(fromHeader) {
   if (!emailMatch) return "";
   const email = emailMatch[1];
   return email.split("@").pop().trim();
+}
+
+if (typeof module !== "undefined") {
+  module.exports = { parseAuthResults, extractDomain };
 }

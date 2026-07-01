@@ -1,0 +1,24 @@
+{
+  "name": "thunder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nssv0084/-ail-auth-checker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nssv0084/-ail-auth-checker/issues"
+  },
+  "homepage": "https://github.com/nssv0084/-ail-auth-checker#readme",
+  "devDependencies": {
+    "jest": "^30.4.2"
+  }
+}
