@@ -30,7 +30,59 @@ SPF/DKIM/DMARCの認証結果とアラインメントをバナーで表示する
 
 ### DMARCバッジ
 
-- `p=` ポリシーをツールチップで表示
+#### パース
+
+- `dmarc=(\w+)` で結果を抽出: `pass` / `fail` / `none`
+- `dmarc=\w+\s*\([^)]*p=(\w+)` でポリシーを抽出: `none` / `quarantine` / `reject`
+  - 括弧内にポリシーが記載されていない場合は `null`（ツールチップ表示なし）
+
+#### 色分け
+
+| 結果 | 色 | CSSクラス |
+|---|---|---|
+| `pass` | 緑 | `auth-pass` |
+| `fail` | 赤 | `auth-fail` |
+| `none` | グレー | `auth-none` |
+
+- ポリシー（`p=`）はバッジの色に影響しない
+- ポリシーが取得できた場合のみ `title` 属性に `ポリシー: p=xxx` を表示
+
+#### DMARCポリシー（p=）
+
+送信側が設定する、DMARC失敗時の受信側への推奨対応。受信側に強制力はない。
+
+| p= | 意味 |
+|---|---|
+| `none` | 何もしない（モニタリング・移行期用） |
+| `quarantine` | 迷惑メールフォルダへの振り分けを推奨 |
+| `reject` | 受信拒否を推奨 |
+
+#### DMARCがpassになる条件（OR条件）
+
+| 経路 | 必要条件 |
+|---|---|
+| SPF経路 | `spf=pass` かつ smtp.mailfrom の組織ドメイン = From 組織ドメイン |
+| DKIM経路 | `dkim=pass` かつ header.i の組織ドメイン = From 組織ドメイン |
+
+どちらか一方が満たされれば `dmarc=pass`。バッジはどの経路でpassしたかを表示しない。
+SPFアラインメントバッジとDKIMアラインメントバッジを組み合わせて読むことで判断できる。
+
+#### 表示例
+
+```
+✓ SPF (em3513.mail.uccard.co.jp) [aligned]  ? DKIM (s13.y.mc.salesforce.com) [infra]  ✓ DMARC
+```
+→ SPF経路でDMARC pass。DKIMはSalesforceのインフラ署名で不一致。
+
+```
+✓ SPF (bounce.contact.babyrenta.com) [infra]  ✓ DKIM (babyrenta.com) [aligned]  ✓ DMARC
+```
+→ DKIM経路でDMARC pass。SPFのエンベロープFromは別サブドメインだが組織ドメイン一致。
+
+```
+? DKIM (amazonses.com) [infra]  ✗ DMARC
+```
+→ SPF/DKIMともアラインメントなし → DMARC fail。正規メールでも送信側の設定不備で起こる。
 
 ### 送信元ドメイン注釈
 
@@ -91,5 +143,6 @@ node test/test.js
 
 - 認証pass/failは送信者の善意を証明しない
 - DMARCポリシーは送信者が設定するため、`p=none` では受信側に強制力なし
+- DMARCがどの経路（SPF/DKIM）でpassしたかはバッジから直接読めない
 - ドメイン取得日ヒューリスティックは「熟成」ドメインに無効
 - ルックアライク検出・既知悪性ドメイン照合は未実装
