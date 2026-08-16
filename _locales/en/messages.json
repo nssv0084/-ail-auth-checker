@@ -1,0 +1,15 @@
+{
+  "extensionName": { "message": "Mail Auth Checker" },
+  "extensionDescription": { "message": "Displays SPF/DKIM/DMARC authentication results as a banner when viewing emails. Shows DKIM alignment and domain registration date to help understand what authentication results actually mean." },
+  "optionsTitle": { "message": "Mail Auth Checker Settings" },
+  "optionsHeading": { "message": "Mail Auth Checker Settings" },
+  "optionsRdapLabel": { "message": "Enable domain registration date check (RDAP)" },
+  "optionsRdapDesc": { "message": "When enabled, the sender domain is sent to an external RDAP server (rdap.verisign.com, etc.) to retrieve the registration date. Only the domain name is sent — no email content. Disabled by default." },
+  "optionsSaved": { "message": "Saved." },
+  "dmarcPolicyPrefix": { "message": "Policy: p=" },
+  "fromDomainPrefix": { "message": "From: " },
+  "rdapRegisteredPrefix": { "message": "Registered: " },
+  "daysAgo": { "message": " days ago" },
+  "rdapExpiresPrefix": { "message": "Expires: " },
+  "whoisSearch": { "message": "? WHOIS Search" }
+}

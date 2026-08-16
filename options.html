@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title data-i18n="optionsTitle">Mail Auth Checker Settings</title>
+  <style>
+    body { font-family: sans-serif; padding: 16px; max-width: 500px; }
+    label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+    input[type=checkbox] { margin-top: 3px; flex-shrink: 0; }
+    .desc { font-size: 0.85em; color: #555; margin-top: 4px; }
+    #status { margin-top: 12px; color: green; font-size: 0.9em; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+  <h2 data-i18n="optionsHeading">Mail Auth Checker Settings</h2>
+
+  <label>
+    <input type="checkbox" id="rdapEnabled">
+    <span>
+      <span data-i18n="optionsRdapLabel">Enable domain registration date check (RDAP)</span>
+      <div class="desc" data-i18n="optionsRdapDesc">
+        When enabled, the sender domain is sent to an external RDAP server (rdap.verisign.com, etc.) to retrieve the registration date. Only the domain name is sent — no email content. Disabled by default.
+      </div>
+    </span>
+  </label>
+
+  <div id="status"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>

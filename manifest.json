@@ -1,13 +1,18 @@
 {
   "manifest_version": 2,
-  "name": "Mail Auth Checker",
-  "version": "0.2.4",
-  "description": "Displays SPF/DKIM/DMARC authentication results as a banner when viewing emails. Shows DKIM alignment and domain registration date to help understand what authentication results actually mean. / メールを開くとSPF/DKIM/DMARCの認証結果をバナーで表示します。DKIMアラインメントとドメイン取得日も表示し、認証結果が何を意味するかを理解する手助けをします。",
+  "name": "__MSG_extensionName__",
+  "version": "0.2.6",
+  "description": "__MSG_extensionDescription__",
+  "default_locale": "en",
   "author": "Hiroki Ikemoto",
   "homepage_url": "https://github.com/nssv0084/-ail-auth-checker",
   "icons": { "48": "icon48.png", "96": "icon96.png" },
   "background": {
     "scripts": ["parser.js", "background.js"]
+  },
+  "options_ui": {
+    "page": "options.html",
+    "browser_style": false
   },
   "permissions": [
     "messagesRead",

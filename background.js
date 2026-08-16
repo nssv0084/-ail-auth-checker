@@ -28,12 +28,15 @@ if (typeof messenger !== "undefined") messenger.messageDisplay.onMessageDisplaye
       data: result
     });
 
-    // RDAPを非同期で取得し、取得後にドメイン情報を更新
-    checkRdap(result.fromDomain).then(rdap => {
-      messenger.tabs.sendMessage(tab.id, {
-        type: "UPDATE_RDAP",
-        data: rdap
-      }).catch(() => {});
+    // RDAPを非同期で取得し、取得後にドメイン情報を更新（オプトイン時のみ）
+    messenger.storage.local.get("rdapEnabled").then(pref => {
+      if (!pref.rdapEnabled) return;
+      checkRdap(result.fromDomain).then(rdap => {
+        messenger.tabs.sendMessage(tab.id, {
+          type: "UPDATE_RDAP",
+          data: rdap
+        }).catch(() => {});
+      });
     });
 
   } catch (error) {

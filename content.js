@@ -36,21 +36,20 @@ browser.runtime.onMessage.addListener((msg) => {
   // DMARC
   const dmarcBadge = makeBadge("DMARC", data.dmarc);
   if (data.dmarcPolicy) {
-    dmarcBadge.title = `ポリシー: p=${data.dmarcPolicy}`;
+    dmarcBadge.title = browser.i18n.getMessage("dmarcPolicyPrefix") + data.dmarcPolicy;
   }
   badges.push(dmarcBadge);
 
   // From ドメイン注釈
   const note = document.createElement("span");
   note.className = "auth-note";
-  note.textContent = `送信元: ${data.fromDomain}`;
+  note.textContent = browser.i18n.getMessage("fromDomainPrefix") + data.fromDomain;
   badges.push(note);
 
-  // RDAP ドメイン取得日（後から UPDATE_RDAP で差し替えるプレースホルダー）
+  // RDAP スロット（UPDATE_RDAP が届いたときのみ表示）
   const rdapSlot = document.createElement("span");
   rdapSlot.id = "mail-auth-rdap-slot";
-  rdapSlot.className = "auth-badge auth-none";
-  rdapSlot.textContent = "取得日: 確認中…";
+  rdapSlot.style.display = "none";
   badges.push(rdapSlot);
 
   for (const b of badges) banner.appendChild(b);
@@ -62,19 +61,21 @@ browser.runtime.onMessage.addListener((msg) => {
 function updateRdap(rdap) {
   const slot = document.getElementById("mail-auth-rdap-slot");
   if (!slot) return;
+  slot.style.display = "";
 
   if (rdap && rdap.registered) {
     const regDate = new Date(rdap.registered);
     const ageDays = Math.floor((Date.now() - regDate.getTime()) / (1000 * 60 * 60 * 24));
     const level = ageDays < 30 ? "fail" : ageDays < 180 ? "warn" : "pass";
     slot.className = `auth-badge auth-${level}`;
-    slot.textContent = `取得: ${regDate.toLocaleDateString("ja-JP")} (${ageDays}日前)`;
-    slot.title = rdap.expires ? `有効期限: ${new Date(rdap.expires).toLocaleDateString("ja-JP")}` : "";
+    const locale = browser.i18n.getUILanguage();
+    slot.textContent = browser.i18n.getMessage("rdapRegisteredPrefix") + regDate.toLocaleDateString(locale) + " (" + ageDays + browser.i18n.getMessage("daysAgo") + ")";
+    slot.title = rdap.expires ? browser.i18n.getMessage("rdapExpiresPrefix") + new Date(rdap.expires).toLocaleDateString(locale) : "";
   } else if (rdap && rdap.lookupUrl) {
     const link = document.createElement("a");
     link.href = rdap.lookupUrl;
     link.target = "_blank";
-    link.textContent = "? WHOIS検索";
+    link.textContent = browser.i18n.getMessage("whoisSearch");
     link.className = "auth-link";
     slot.replaceWith(link);
   } else {

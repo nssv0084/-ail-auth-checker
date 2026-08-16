@@ -1,0 +1,15 @@
+{
+  "extensionName": { "message": "Mail Auth Checker" },
+  "extensionDescription": { "message": "メールを開くとSPF/DKIM/DMARCの認証結果をバナーで表示します。DKIMアラインメントとドメイン取得日も表示し、認証結果が何を意味するかを理解する手助けをします。" },
+  "optionsTitle": { "message": "Mail Auth Checker 設定" },
+  "optionsHeading": { "message": "Mail Auth Checker 設定" },
+  "optionsRdapLabel": { "message": "ドメイン登録日の確認を有効にする（RDAP）" },
+  "optionsRdapDesc": { "message": "有効にすると、メールの送信元ドメイン名を外部の RDAP サーバー（rdap.verisign.com 等）に送信して登録日を取得します。送信されるのはドメイン名のみで、メールの内容は一切送信されません。デフォルトは無効です。" },
+  "optionsSaved": { "message": "保存しました。" },
+  "dmarcPolicyPrefix": { "message": "ポリシー: p=" },
+  "fromDomainPrefix": { "message": "送信元: " },
+  "rdapRegisteredPrefix": { "message": "取得: " },
+  "daysAgo": { "message": "日前" },
+  "rdapExpiresPrefix": { "message": "有効期限: " },
+  "whoisSearch": { "message": "? WHOIS検索" }
+}
