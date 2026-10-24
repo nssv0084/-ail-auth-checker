@@ -31,7 +31,7 @@
     <label for="trustedAuthservIds" class="block" data-i18n="optionsTrustedLabel">Trusted authserv-ids</label>
     <input type="text" id="trustedAuthservIds" placeholder="mx.google.com">
     <div class="desc" data-i18n="optionsTrustedDesc">
-      Comma-separated. Only Authentication-Results headers added by these servers are used; headers the sender inserted are ignored. If empty, only the topmost header is used and the result is marked as unverified.
+      Comma-separated (e.g. mx.google.com). Results are shown only when the topmost Authentication-Results header was added by one of these servers; headers the sender inserted are ignored. If empty, the topmost header is shown in gray as unverified.
     </div>
   </div>
 

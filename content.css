@@ -53,6 +53,16 @@
   border: 1px solid #28a745;
 }
 
+/* 信頼 authserv-id 未設定時: 偽造の可能性があるため pass/fail の色を出さない */
+.auth-badge.auth-muted {
+  filter: grayscale(1);
+  opacity: 0.6;
+}
+
+.auth-clickable {
+  cursor: pointer;
+}
+
 .auth-note {
   color: #666;
   margin-left: 4px;

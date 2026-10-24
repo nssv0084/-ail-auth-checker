@@ -47,6 +47,10 @@ if (typeof messenger !== "undefined") messenger.messageDisplay.onMessageDisplaye
   }
 });
 
+if (typeof messenger !== "undefined") messenger.runtime.onMessage.addListener((msg) => {
+  if (msg && msg.type === "OPEN_OPTIONS") messenger.runtime.openOptionsPage();
+});
+
 // CORSに対応しているRDAPサーバーのみ登録する。
 // rdap.jprs.jp は CORS 非対応のため fetch がブロックされる（NetworkError確認済み）。
 // .jp ドメインは lookupUrl（WHO.IS）のリンク表示にフォールバックする。

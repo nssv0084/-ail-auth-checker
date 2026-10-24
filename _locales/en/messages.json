@@ -13,10 +13,10 @@
   "rdapExpiresPrefix": { "message": "Expires: " },
   "whoisSearch": { "message": "? WHOIS Search" },
   "optionsTrustedLabel": { "message": "Trusted authserv-ids" },
-  "optionsTrustedDesc": { "message": "Comma-separated (e.g. mx.google.com). Only Authentication-Results headers added by these servers are used; headers the sender inserted are ignored. If empty, only the topmost header is used and the result is marked as unverified." },
+  "optionsTrustedDesc": { "message": "Comma-separated (e.g. mx.google.com). Results are shown only when the topmost Authentication-Results header was added by one of these servers; headers the sender inserted are ignored. If empty, the topmost header is shown in gray as unverified." },
   "trustUnverifiedLabel": { "message": "Unverified" },
-  "trustUnverifiedDesc": { "message": "No trusted authserv-id is configured, so the topmost Authentication-Results header is used as-is. Set your mail server's authserv-id in the options. authserv-id: " },
+  "trustUnverifiedDesc": { "message": "No trusted authserv-id is configured, so these results may be forged and are shown in gray. Click to open the settings and enter your mail server's authserv-id. authserv-id: " },
   "trustUntrustedLabel": { "message": "No trusted results" },
-  "trustUntrustedDesc": { "message": "No Authentication-Results header from a trusted authserv-id was found. The results in this message may be forged. Topmost authserv-id: " },
+  "trustUntrustedDesc": { "message": "The topmost Authentication-Results header is not from a trusted authserv-id. The results in this message may be forged. Topmost authserv-id: " },
   "trustVerifiedDesc": { "message": "authserv-id: " }
 }

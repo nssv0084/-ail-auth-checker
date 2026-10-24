@@ -1,6 +1,6 @@
 # Mail Auth Checker 仕様
 
-バージョン: 0.2.7
+バージョン: 0.2.8
 
 ## 概要
 
@@ -102,14 +102,26 @@ SPFアラインメントバッジとDKIMアラインメントバッジを組み�
 
 送信者はメール作成時に任意の `Authentication-Results` を埋め込めるため、全ヘッダーを無条件に解析しない（RFC 8601 §5）。
 
-- 各ヘッダーの authserv-id（最初の `;` より前のトークン）を抽出
-- 設定「信頼する authserv-id」（カンマ区切り、`trustedAuthservIds`）がある場合
-  - authserv-id が一致する最上位のヘッダー1本のみ解析（`trust: "verified"`）。下位に同じ authserv-id を騙る偽造ヘッダーがあっても無視する。バナーの `title` に authserv-id を表示
-  - 一致なし: SPF/DKIM/DMARC バッジを出さず「✗ 信頼できる認証結果なし」（`auth-fail`、`trust: "untrusted"`）
+- 使うのは常に最上位（受信側 MTA が最後に付与した）の1本のみ。下位ヘッダーは同じ authserv-id を名乗っていても使わず、欠落項目の補完にも使わない
+- 設定「信頼する authserv-id」（カンマ区切り、`trustedAuthservIds`、大文字小文字を区別しない）がある場合
+  - 最上位の authserv-id が一致: 解析する（`trust: "verified"`）。バナーの `title` に authserv-id を表示
+  - 不一致・ヘッダーなし: SPF/DKIM/DMARC バッジを出さず「✗ 信頼できる認証結果なし」（`auth-fail`、`trust: "untrusted"`）
 - 未設定の場合
-  - 最上位（受信側 MTA が最後に付与した）1本のみ解析し、下位ヘッダーで欠落項目を補わない
-  - 「? 未検証」バッジ（`auth-warn`、`trust: "unverified"`）を表示
-- 大文字小文字は区別しない
+  - 「? 未検証」バッジ（`auth-warn`、`trust: "unverified"`）を表示。クリックで設定画面を開く
+  - SPF/DKIM/DMARC バッジはグレー表示（`auth-muted`）にし、pass の緑を出さない
+
+### ヘッダーの解析
+
+値の中やコメントに送信者が決められる文字列（`smtp.mailfrom` 等）が書き写されるため、ヘッダー全体を正規表現で検索しない。
+
+- コメント `( )`・引用符 `" "` の外にある `;` で区切る。先頭の区切りが authserv-id
+- 各区切りの先頭の `method=result` を結果とし、その後ろの `ptype.property=value` を属性として読む。コメントは除外
+- 引用符部分と直後の非引用部分は1つの値として連結する（`"x@a.example"@b.example` のドメインは `b.example`）
+- DMARC ポリシー（`p=`）は dmarc 項目のコメントからのみ読む
+
+### 既知の制約
+
+受信サーバーが `Authentication-Results` を一切付与しないメール（内部経路、ローカルフォルダーへ取り込んだメール等）では、送信者が信頼 authserv-id を名乗った偽造ヘッダーが最上位になり、`verified` と表示される。`Authentication-Results` だけでは区別できない。
 
 ## アラインメント判定
 

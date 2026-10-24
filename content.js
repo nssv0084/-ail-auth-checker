@@ -19,14 +19,21 @@ browser.runtime.onMessage.addListener((msg) => {
     b.title = browser.i18n.getMessage("trustUntrustedDesc") + (data.authservId || "-");
     badges.push(b);
   } else {
-    if (data.trust === "unverified") {
+    const unverified = data.trust === "unverified";
+    if (unverified) {
       const b = makeBadge(browser.i18n.getMessage("trustUnverifiedLabel"), "warn");
       b.title = browser.i18n.getMessage("trustUnverifiedDesc") + (data.authservId || "-");
+      b.classList.add("auth-clickable");
+      b.addEventListener("click", () => {
+        browser.runtime.sendMessage({ type: "OPEN_OPTIONS" }).catch(() => {});
+      });
       badges.push(b);
     } else {
       banner.title = browser.i18n.getMessage("trustVerifiedDesc") + data.authservId;
     }
+    const start = badges.length;
     pushAuthBadges(badges, data);
+    if (unverified) badges.slice(start).forEach(b => b.classList.add("auth-muted"));
   }
 
   // From ドメイン注釈

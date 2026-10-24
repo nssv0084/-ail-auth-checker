@@ -263,6 +263,76 @@ test("設定あり: 一致なし（受信側が A-R を付けず偽造のみ）�
   assert.strictEqual(r.dmarc, "none");
 });
 
+test("設定あり: 最上位が別サーバーなら、下位の信頼 ID 名乗りヘッダーは untrusted（ケース2）", () => {
+  const s = selectAuthResults(["mx.other.example; spf=none", FORGED], ["mx.google.com"]);
+  assert.strictEqual(s.trust, "untrusted");
+  assert.strictEqual(s.header, "");
+  assert.strictEqual(s.authservId, "mx.other.example");
+});
+
+test("設定あり: ヘッダーなし → untrusted", () => {
+  assert.strictEqual(selectAuthResults([], ["mx.google.com"]).trust, "untrusted");
+});
+
+// ─── 項目単位のパース（ケース3: 値・コメントへの注入） ─────────────
+
+console.log("\nResinfo parsing");
+
+test("引用符付き smtp.mailfrom 内の dmarc=/dkim= を結果として読まない", () => {
+  const h = 'mx.google.com; spf=fail smtp.mailfrom="x dmarc=pass dkim=pass header.i=@bank.co.jp"@evil.example; dmarc=fail (p=reject) header.from=bank.co.jp';
+  const r = parseAuthResults(h, "info@bank.co.jp");
+  assert.strictEqual(r.dmarc, "fail");
+  assert.strictEqual(r.dmarcPolicy, "reject");
+  assert.strictEqual(r.dkimResults.length, 0);
+  assert.strictEqual(r.spfDomain, "evil.example");
+  assert.strictEqual(r.spfAligned, false);
+});
+
+test("引用符付きローカルパートの @ をドメインとして読まない", () => {
+  const h = 'mx.google.com; spf=pass smtp.mailfrom="x@bank.co.jp"@evil.example';
+  const r = parseAuthResults(h, "info@bank.co.jp");
+  assert.strictEqual(r.spfDomain, "evil.example");
+  assert.strictEqual(r.spfAligned, false);
+});
+
+test("コメント内の dmarc=/dkim= を結果として読まない", () => {
+  const h = "mx.google.com; spf=fail (sender said: dmarc=pass; dkim=pass header.i=@bank.co.jp) smtp.mailfrom=evil.example; dmarc=fail header.from=bank.co.jp";
+  const r = parseAuthResults(h, "info@bank.co.jp");
+  assert.strictEqual(r.dmarc, "fail");
+  assert.strictEqual(r.dkimResults.length, 0);
+});
+
+test("コメント内の p= は DMARC 以外の項目から拾わない", () => {
+  const h = "mx.google.com; spf=pass (p=reject) smtp.mailfrom=example.com; dmarc=pass header.from=example.com";
+  const r = parseAuthResults(h, "user@example.com");
+  assert.strictEqual(r.dmarcPolicy, null);
+});
+
+test("Gmail 実形式", () => {
+  const h = [
+    "mx.google.com;",
+    "       dkim=pass header.i=@mail.uccard.co.jp header.s=s1 header.b=abc;",
+    "       dkim=pass header.i=@sendgrid.info header.s=smtpapi header.b=def;",
+    '       spf=pass (google.com: domain of bounces+1@em3513.mail.uccard.co.jp designates 1.2.3.4 as permitted sender) smtp.mailfrom="bounces+1@em3513.mail.uccard.co.jp";',
+    "       dmarc=pass (p=NONE sp=NONE dis=NONE) header.from=mail.uccard.co.jp"
+  ].join("\r\n");
+  const r = parseAuthResults(h, "info@mail.uccard.co.jp");
+  assert.strictEqual(r.spf, "pass");
+  assert.strictEqual(r.spfDomain, "em3513.mail.uccard.co.jp");
+  assert.strictEqual(r.spfAligned, true);
+  assert.strictEqual(r.dmarc, "pass");
+  assert.strictEqual(r.dmarcPolicy, "none");
+  assert.strictEqual(r.dkimResults.length, 2);
+  assert.strictEqual(getAuthservId(h), "mx.google.com");
+});
+
+test("authserv-id のみ（none）", () => {
+  const r = parseAuthResults("mx.google.com; none", "user@example.com");
+  assert.strictEqual(r.spf, "none");
+  assert.strictEqual(r.dmarc, "none");
+  assert.strictEqual(r.dkimResults.length, 0);
+});
+
 test("設定あり: 大文字小文字を区別しない", () => {
   const s = selectAuthResults(["MX.Google.COM; dmarc=pass"], ["mx.google.com"]);
   assert.strictEqual(s.trust, "verified");
