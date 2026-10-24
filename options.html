@@ -8,6 +8,9 @@
     label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
     input[type=checkbox] { margin-top: 3px; flex-shrink: 0; }
     .desc { font-size: 0.85em; color: #555; margin-top: 4px; }
+    .field { margin-top: 20px; }
+    label.block { display: block; cursor: default; }
+    input[type=text] { width: 100%; box-sizing: border-box; margin-top: 6px; padding: 4px; }
     #status { margin-top: 12px; color: green; font-size: 0.9em; min-height: 1.2em; }
   </style>
 </head>
@@ -23,6 +26,14 @@
       </div>
     </span>
   </label>
+
+  <div class="field">
+    <label for="trustedAuthservIds" class="block" data-i18n="optionsTrustedLabel">Trusted authserv-ids</label>
+    <input type="text" id="trustedAuthservIds" placeholder="mx.google.com">
+    <div class="desc" data-i18n="optionsTrustedDesc">
+      Comma-separated. Only Authentication-Results headers added by these servers are used; headers the sender inserted are ignored. If empty, only the topmost header is used and the result is marked as unverified.
+    </div>
+  </div>
 
   <div id="status"></div>
 

@@ -22,6 +22,37 @@ function getOrgDomain(domain) {
   return parts.slice(-2).join(".");
 }
 
+// RFC 8601: authserv-id は最初の ";" より前のトークン（先頭の CFWS / コメントは除去）
+function getAuthservId(header) {
+  if (!header) return "";
+  const head = header.split(";")[0].replace(/\([^)]*\)/g, " ").trim();
+  return (head.split(/\s+/)[0] || "").toLowerCase();
+}
+
+function parseTrustedIds(text) {
+  if (!text) return [];
+  return text.split(/[\s,]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+}
+
+// 送信者は任意の Authentication-Results を本文作成時に埋め込めるため、信頼できるものだけを選ぶ。
+// headers は上から（受信側 MTA が最後に付けたものが先頭）の順。
+//   trustedIds あり: authserv-id が一致する最上位のヘッダーのみ採用（verified）。一致なしなら untrusted。
+//   trustedIds なし: 最上位の 1 本のみ採用（unverified）。
+function selectAuthResults(headers, trustedIds) {
+  const list = (headers || []).filter(h => h && h.trim());
+  if (trustedIds && trustedIds.length > 0) {
+    const ids = new Set(trustedIds.map(s => s.toLowerCase()));
+    // 送信者が信頼済み authserv-id を騙ったヘッダーを下位に埋め込む場合があるため、最上位の一致 1 本のみ採用
+    const matched = list.find(h => ids.has(getAuthservId(h)));
+    if (!matched) {
+      return { header: "", trust: "untrusted", authservId: list.length ? getAuthservId(list[0]) : "" };
+    }
+    return { header: matched, trust: "verified", authservId: getAuthservId(matched) };
+  }
+  if (list.length === 0) return { header: "", trust: "unverified", authservId: "" };
+  return { header: list[0], trust: "unverified", authservId: getAuthservId(list[0]) };
+}
+
 function parseAuthResults(header, from) {
   const fromDomain = extractDomain(from);
   const fromOrg = getOrgDomain(fromDomain);
@@ -69,4 +100,4 @@ function extractDomain(fromHeader) {
   return email.split("@").pop().trim();
 }
 
-if (typeof module !== "undefined") module.exports = { parseAuthResults, extractDomain, getOrgDomain };
+if (typeof module !== "undefined") module.exports = { parseAuthResults, extractDomain, getOrgDomain, getAuthservId, parseTrustedIds, selectAuthResults };

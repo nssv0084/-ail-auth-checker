@@ -1,5 +1,5 @@
 const assert = require("assert");
-const { parseAuthResults, extractDomain, getOrgDomain } = require("../parser.js");
+const { parseAuthResults, extractDomain, getOrgDomain, getAuthservId, parseTrustedIds, selectAuthResults } = require("../parser.js");
 
 let passed = 0;
 let failed = 0;
@@ -197,6 +197,79 @@ test("DMARC fail with policy", () => {
 test("DMARC policy quarantine", () => {
   const r = parseAuthResults("dmarc=pass (p=quarantine) header.from=example.com", "user@example.com");
   assert.strictEqual(r.dmarcPolicy, "quarantine");
+});
+
+// ─── 信頼境界（authserv-id） ──────────────────────────────────────
+
+console.log("\nTrust boundary");
+
+const REAL = "mx.google.com; spf=fail smtp.mailfrom=evil.example; dkim=none; dmarc=fail (p=reject) header.from=bank.co.jp";
+const FORGED = "mx.google.com; spf=pass smtp.mailfrom=bank.co.jp; dkim=pass header.i=@bank.co.jp; dmarc=pass";
+const FORGED_OTHER = "fake.example; spf=pass smtp.mailfrom=bank.co.jp; dkim=pass header.i=@bank.co.jp; dmarc=pass";
+
+test("getAuthservId: 通常", () => {
+  assert.strictEqual(getAuthservId("mx.google.com; spf=pass"), "mx.google.com");
+});
+
+test("getAuthservId: version 付き・コメント付き", () => {
+  assert.strictEqual(getAuthservId(" (c) MX.Example.COM 1; spf=pass"), "mx.example.com");
+});
+
+test("parseTrustedIds: カンマ・空白区切り", () => {
+  assert.deepStrictEqual(parseTrustedIds(" mx.google.com, MX2.example.com  a.b "), ["mx.google.com", "mx2.example.com", "a.b"]);
+  assert.deepStrictEqual(parseTrustedIds(""), []);
+  assert.deepStrictEqual(parseTrustedIds(undefined), []);
+});
+
+test("未設定: 最上位のみ採用し、下の偽造ヘッダーは無視", () => {
+  const s = selectAuthResults([REAL, FORGED], []);
+  assert.strictEqual(s.trust, "unverified");
+  const r = parseAuthResults(s.header, "info@bank.co.jp");
+  assert.strictEqual(r.spf, "fail");
+  assert.strictEqual(r.dmarc, "fail");
+  assert.strictEqual(r.dkimResults.length, 0);
+});
+
+test("未設定: 上位ヘッダーに無い項目を下の偽造ヘッダーで補わない", () => {
+  const s = selectAuthResults(["mx.google.com; dkim=none", FORGED], []);
+  const r = parseAuthResults(s.header, "info@bank.co.jp");
+  assert.strictEqual(r.spf, "none");
+  assert.strictEqual(r.dmarc, "none");
+});
+
+test("設定あり: 一致する authserv-id のみ採用", () => {
+  const s = selectAuthResults([REAL, FORGED_OTHER], ["mx.google.com"]);
+  assert.strictEqual(s.trust, "verified");
+  const r = parseAuthResults(s.header, "info@bank.co.jp");
+  assert.strictEqual(r.dmarc, "fail");
+  assert.strictEqual(r.dkimResults.length, 0);
+});
+
+test("設定あり: 信頼済み authserv-id を騙った下位の偽造ヘッダーは無視", () => {
+  const s = selectAuthResults([REAL, FORGED], ["mx.google.com"]);
+  assert.strictEqual(s.trust, "verified");
+  const r = parseAuthResults(s.header, "info@bank.co.jp");
+  assert.strictEqual(r.spf, "fail");
+  assert.strictEqual(r.dmarc, "fail");
+  assert.strictEqual(r.dkimResults.length, 0);
+});
+
+test("設定あり: 一致なし（受信側が A-R を付けず偽造のみ）→ untrusted", () => {
+  const s = selectAuthResults([FORGED_OTHER], ["mx.google.com"]);
+  assert.strictEqual(s.trust, "untrusted");
+  assert.strictEqual(s.header, "");
+  assert.strictEqual(s.authservId, "fake.example");
+  const r = parseAuthResults(s.header, "info@bank.co.jp");
+  assert.strictEqual(r.dmarc, "none");
+});
+
+test("設定あり: 大文字小文字を区別しない", () => {
+  const s = selectAuthResults(["MX.Google.COM; dmarc=pass"], ["mx.google.com"]);
+  assert.strictEqual(s.trust, "verified");
+});
+
+test("ヘッダーなし", () => {
+  assert.deepStrictEqual(selectAuthResults([], []), { header: "", trust: "unverified", authservId: "" });
 });
 
 // ─── 結果 ─────────────────────────────────────────────────────────

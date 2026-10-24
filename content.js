@@ -14,6 +14,40 @@ browser.runtime.onMessage.addListener((msg) => {
 
   const badges = [];
 
+  if (data.trust === "untrusted") {
+    const b = makeBadge(browser.i18n.getMessage("trustUntrustedLabel"), "fail");
+    b.title = browser.i18n.getMessage("trustUntrustedDesc") + (data.authservId || "-");
+    badges.push(b);
+  } else {
+    if (data.trust === "unverified") {
+      const b = makeBadge(browser.i18n.getMessage("trustUnverifiedLabel"), "warn");
+      b.title = browser.i18n.getMessage("trustUnverifiedDesc") + (data.authservId || "-");
+      badges.push(b);
+    } else {
+      banner.title = browser.i18n.getMessage("trustVerifiedDesc") + data.authservId;
+    }
+    pushAuthBadges(badges, data);
+  }
+
+  // From ドメイン注釈
+  const note = document.createElement("span");
+  note.className = "auth-note";
+  note.textContent = browser.i18n.getMessage("fromDomainPrefix") + data.fromDomain;
+  badges.push(note);
+
+  // RDAP スロット（UPDATE_RDAP が届いたときのみ表示）
+  const rdapSlot = document.createElement("span");
+  rdapSlot.id = "mail-auth-rdap-slot";
+  rdapSlot.style.display = "none";
+  badges.push(rdapSlot);
+
+  for (const b of badges) banner.appendChild(b);
+
+  const msgBody = document.querySelector("body");
+  if (msgBody) msgBody.prepend(banner);
+});
+
+function pushAuthBadges(badges, data) {
   // SPF
   if (data.spfDomain) {
     const alignType = data.spfAligned ? "aligned" : "infra";
@@ -39,24 +73,7 @@ browser.runtime.onMessage.addListener((msg) => {
     dmarcBadge.title = browser.i18n.getMessage("dmarcPolicyPrefix") + data.dmarcPolicy;
   }
   badges.push(dmarcBadge);
-
-  // From ドメイン注釈
-  const note = document.createElement("span");
-  note.className = "auth-note";
-  note.textContent = browser.i18n.getMessage("fromDomainPrefix") + data.fromDomain;
-  badges.push(note);
-
-  // RDAP スロット（UPDATE_RDAP が届いたときのみ表示）
-  const rdapSlot = document.createElement("span");
-  rdapSlot.id = "mail-auth-rdap-slot";
-  rdapSlot.style.display = "none";
-  badges.push(rdapSlot);
-
-  for (const b of badges) banner.appendChild(b);
-
-  const msgBody = document.querySelector("body");
-  if (msgBody) msgBody.prepend(banner);
-});
+}
 
 function updateRdap(rdap) {
   const slot = document.getElementById("mail-auth-rdap-slot");

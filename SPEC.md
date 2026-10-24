@@ -98,6 +98,19 @@ SPFアラインメントバッジとDKIMアラインメントバッジを組み�
 - その他TLD: WHOIS検索リンクを表示
 - 取得日データは24時間キャッシュ（`messenger.storage.local`）
 
+## Authentication-Results の信頼境界
+
+送信者はメール作成時に任意の `Authentication-Results` を埋め込めるため、全ヘッダーを無条件に解析しない（RFC 8601 §5）。
+
+- 各ヘッダーの authserv-id（最初の `;` より前のトークン）を抽出
+- 設定「信頼する authserv-id」（カンマ区切り、`trustedAuthservIds`）がある場合
+  - authserv-id が一致する最上位のヘッダー1本のみ解析（`trust: "verified"`）。下位に同じ authserv-id を騙る偽造ヘッダーがあっても無視する。バナーの `title` に authserv-id を表示
+  - 一致なし: SPF/DKIM/DMARC バッジを出さず「✗ 信頼できる認証結果なし」（`auth-fail`、`trust: "untrusted"`）
+- 未設定の場合
+  - 最上位（受信側 MTA が最後に付与した）1本のみ解析し、下位ヘッダーで欠落項目を補わない
+  - 「? 未検証」バッジ（`auth-warn`、`trust: "unverified"`）を表示
+- 大文字小文字は区別しない
+
 ## アラインメント判定
 
 組織ドメイン（eTLD+1）で比較（Relaxedアラインメント相当）。
@@ -127,7 +140,7 @@ mail.uccard.co.jp        → uccard.co.jp → 一致
 
 | ファイル | 役割 |
 |---|---|
-| `parser.js` | 純粋関数（`parseAuthResults` / `extractDomain` / `getOrgDomain`） |
+| `parser.js` | 純粋関数（`parseAuthResults` / `extractDomain` / `getOrgDomain` / `selectAuthResults` / `getAuthservId` / `parseTrustedIds`） |
 | `background.js` | メッセージ受信・RDAP取得・content scriptへのメッセージ送信 |
 | `content.js` | バナーDOM生成・UPDATE_RDAPによる差し替え |
 | `content.css` | バッジスタイル |

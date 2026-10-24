@@ -11,5 +11,12 @@
   "rdapRegisteredPrefix": { "message": "取得: " },
   "daysAgo": { "message": "日前" },
   "rdapExpiresPrefix": { "message": "有効期限: " },
-  "whoisSearch": { "message": "? WHOIS検索" }
+  "whoisSearch": { "message": "? WHOIS検索" },
+  "optionsTrustedLabel": { "message": "信頼する authserv-id" },
+  "optionsTrustedDesc": { "message": "カンマ区切り（例: mx.google.com）。ここに指定したサーバーが付与した Authentication-Results ヘッダーのみを使用し、送信者が埋め込んだヘッダーは無視します。空の場合は最上位のヘッダーのみを使用し、「未検証」と表示します。" },
+  "trustUnverifiedLabel": { "message": "未検証" },
+  "trustUnverifiedDesc": { "message": "信頼する authserv-id が未設定のため、最上位の Authentication-Results をそのまま使用しています。設定画面で受信サーバーの authserv-id を指定してください。authserv-id: " },
+  "trustUntrustedLabel": { "message": "信頼できる認証結果なし" },
+  "trustUntrustedDesc": { "message": "信頼する authserv-id の Authentication-Results が見つかりません。このメール内の認証結果は偽造の可能性があります。最上位の authserv-id: " },
+  "trustVerifiedDesc": { "message": "authserv-id: " }
 }

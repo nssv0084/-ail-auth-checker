@@ -5,12 +5,15 @@ if (typeof messenger !== "undefined") messenger.messageDisplay.onMessageDisplaye
 
     // ヘッダー名は大文字小文字を区別しないようにフォールバックを用意
     const authHeaderRaw = headers["authentication-results"] || headers["Authentication-Results"] || [];
-    const authHeader = authHeaderRaw.join("\n");
+    const pref = await messenger.storage.local.get("trustedAuthservIds");
+    const selected = selectAuthResults(authHeaderRaw, parseTrustedIds(pref.trustedAuthservIds));
 
     const fromHeaderRaw = headers["from"] || headers["From"] || [""];
     const fromHeader = fromHeaderRaw[0];
 
-    const result = parseAuthResults(authHeader, fromHeader);
+    const result = parseAuthResults(selected.header, fromHeader);
+    result.trust = selected.trust;
+    result.authservId = selected.authservId;
 
     // 画面へのインジェクション処理
     await messenger.scripting.executeScript({
